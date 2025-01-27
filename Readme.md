@@ -80,8 +80,10 @@
 ## 10. Драйвер
 - Пока в планах
 
-<br><br><br><br>
 ---
+
+<br><br><br><br>
+
 # Модули проекта Nemesis.Hack.Memory
 
 ## 1. CoreProcessManager (Управление процессами)
