@@ -18,13 +18,30 @@ public final class CoreProcessManager {
 	}
 
 	/**
-	 * Выбор процесса для работы по его PID.
-	 *
-	 * @param pid идентификатор процесса
-	 * @return ProcessHandle процесса (если найден), иначе Optional.empty()
+	 * Поиск списка всех запущенных процессов по имени.
 	 */
-	public Optional<ProcessHandle> selectProcess(long pid) {
-		return ProcessHandle.of(pid).filter(ProcessHandle::isAlive);
+	public List<ProcessInfo> getProcesses(String processName) {
+		return ProcessHandle.allProcesses()
+				.filter(ProcessHandle::isAlive)
+				.sorted(Comparator.comparingLong(ProcessHandle::pid))
+				.map(this::mapToProcessInfo)
+				.filter(x->{
+					String command = x.getCommand();
+					return command.toLowerCase().contains(processName.toLowerCase());
+				})
+				.toList();
+	}
+
+	/**
+	 * Закрыть процесс.
+	 * @param pid идентификатор процесса
+	 */
+	public void closeProcess(long pid)
+	{
+		ProcessHandle.of(pid)
+			.filter(ProcessHandle::isAlive)
+					.map(ProcessHandle::destroy)
+					.orElse(false);
 	}
 
 	/**
@@ -43,28 +60,6 @@ public final class CoreProcessManager {
 			System.out.println("Не удалось открыть процесс с PID " + pid);
 		}
 		return processHandle;
-	}
-
-	/**
-	 * Закрытие хендла процесса. Этот метод завершает процесс.
-	 *
-	 * @param pid идентификатор процесса
-	 * @return true, если процесс успешно завершен, иначе false
-	 */
-	public boolean closeProcess(long pid) {
-		Optional<ProcessHandle> processHandle = ProcessHandle.of(pid).filter(ProcessHandle::isAlive);
-
-		if (processHandle.isPresent()) {
-			boolean result = processHandle.get().destroy(); // Попытка завершить процесс
-			if (result) {
-				System.out.println("Процесс с PID " + pid + " успешно завершен.");
-			} else {
-				System.out.println("Не удалось завершить процесс с PID " + pid);
-			}
-			return result;
-		}
-		System.out.println("Процесс с PID " + pid + " не найден.");
-		return false;
 	}
 
 	/**
