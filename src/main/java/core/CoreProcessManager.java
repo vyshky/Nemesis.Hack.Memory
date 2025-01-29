@@ -10,21 +10,27 @@ public final class CoreProcessManager {
 	 * Получение списка всех запущенных процессов.
 	 */
 	public List<ProcessInfo> getAllProcesses() {
-		return ProcessHandle.allProcesses()
-				.filter(ProcessHandle::isAlive)
-				.sorted(Comparator.comparingLong(ProcessHandle::pid))
-				.map(this::mapToProcessInfo)
-				.toList();
+		return ProcessHandle.allProcesses().filter(ProcessHandle::isAlive).sorted(Comparator.comparingLong(ProcessHandle::pid)).map(this::mapToProcessInfo).toList();
 	}
 
 	/**
-	 * Выбор процесса для работы по его PID.
+	 * Поиск списка всех запущенных процессов по имени.
+	 */
+	public List<ProcessInfo> getProcesses(String processName) {
+		return ProcessHandle.allProcesses().filter(ProcessHandle::isAlive).sorted(Comparator.comparingLong(ProcessHandle::pid)).map(this::mapToProcessInfo).filter(x -> {
+			String command = x.getCommand();
+			return command.toLowerCase().contains(processName.toLowerCase());
+		}).toList();
+	}
+
+	/**
+	 * Закрыть процесс.
 	 *
 	 * @param pid идентификатор процесса
-	 * @return ProcessHandle процесса (если найден), иначе Optional.empty()
 	 */
-	public Optional<ProcessHandle> selectProcess(long pid) {
-		return ProcessHandle.of(pid).filter(ProcessHandle::isAlive);
+	public void closeProcess(long pid) {
+		Optional<ProcessHandle> process = ProcessHandle.of(pid).filter(ProcessHandle::isAlive);
+		process.ifPresent(ProcessHandle::destroy);
 	}
 
 	/**
@@ -46,37 +52,10 @@ public final class CoreProcessManager {
 	}
 
 	/**
-	 * Закрытие хендла процесса. Этот метод завершает процесс.
-	 *
-	 * @param pid идентификатор процесса
-	 * @return true, если процесс успешно завершен, иначе false
-	 */
-	public boolean closeProcess(long pid) {
-		Optional<ProcessHandle> processHandle = ProcessHandle.of(pid).filter(ProcessHandle::isAlive);
-
-		if (processHandle.isPresent()) {
-			boolean result = processHandle.get().destroy(); // Попытка завершить процесс
-			if (result) {
-				System.out.println("Процесс с PID " + pid + " успешно завершен.");
-			} else {
-				System.out.println("Не удалось завершить процесс с PID " + pid);
-			}
-			return result;
-		}
-		System.out.println("Процесс с PID " + pid + " не найден.");
-		return false;
-	}
-
-	/**
 	 * Преобразование ProcessHandle в ProcessInfo для представления данных.
 	 */
 	private ProcessInfo mapToProcessInfo(ProcessHandle process) {
 		ProcessHandle.Info info = process.info();
-		return new ProcessInfo(
-				process.pid(),
-				info.command().orElse("Unknown"),
-				info.user().orElse("Unknown"),
-				info.startInstant().map(Object::toString).orElse("Unknown")
-		);
+		return new ProcessInfo(process.pid(), info.command().orElse("Unknown"), info.user().orElse("Unknown"), info.startInstant().map(Object::toString).orElse("Unknown"));
 	}
 }
