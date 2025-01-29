@@ -10,38 +10,27 @@ public final class CoreProcessManager {
 	 * Получение списка всех запущенных процессов.
 	 */
 	public List<ProcessInfo> getAllProcesses() {
-		return ProcessHandle.allProcesses()
-				.filter(ProcessHandle::isAlive)
-				.sorted(Comparator.comparingLong(ProcessHandle::pid))
-				.map(this::mapToProcessInfo)
-				.toList();
+		return ProcessHandle.allProcesses().filter(ProcessHandle::isAlive).sorted(Comparator.comparingLong(ProcessHandle::pid)).map(this::mapToProcessInfo).toList();
 	}
 
 	/**
 	 * Поиск списка всех запущенных процессов по имени.
 	 */
 	public List<ProcessInfo> getProcesses(String processName) {
-		return ProcessHandle.allProcesses()
-				.filter(ProcessHandle::isAlive)
-				.sorted(Comparator.comparingLong(ProcessHandle::pid))
-				.map(this::mapToProcessInfo)
-				.filter(x->{
-					String command = x.getCommand();
-					return command.toLowerCase().contains(processName.toLowerCase());
-				})
-				.toList();
+		return ProcessHandle.allProcesses().filter(ProcessHandle::isAlive).sorted(Comparator.comparingLong(ProcessHandle::pid)).map(this::mapToProcessInfo).filter(x -> {
+			String command = x.getCommand();
+			return command.toLowerCase().contains(processName.toLowerCase());
+		}).toList();
 	}
 
 	/**
 	 * Закрыть процесс.
+	 *
 	 * @param pid идентификатор процесса
 	 */
-	public void closeProcess(long pid)
-	{
-		ProcessHandle.of(pid)
-			.filter(ProcessHandle::isAlive)
-					.map(ProcessHandle::destroy)
-					.orElse(false);
+	public void closeProcess(long pid) {
+		Optional<ProcessHandle> process = ProcessHandle.of(pid).filter(ProcessHandle::isAlive);
+		process.ifPresent(ProcessHandle::destroy);
 	}
 
 	/**
@@ -67,11 +56,6 @@ public final class CoreProcessManager {
 	 */
 	private ProcessInfo mapToProcessInfo(ProcessHandle process) {
 		ProcessHandle.Info info = process.info();
-		return new ProcessInfo(
-				process.pid(),
-				info.command().orElse("Unknown"),
-				info.user().orElse("Unknown"),
-				info.startInstant().map(Object::toString).orElse("Unknown")
-		);
+		return new ProcessInfo(process.pid(), info.command().orElse("Unknown"), info.user().orElse("Unknown"), info.startInstant().map(Object::toString).orElse("Unknown"));
 	}
 }
