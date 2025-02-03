@@ -14,15 +14,15 @@ import memory.exception.ModulesNotFoundException;
 public class ProcessMemoryReader {
     private static final Kernel32 KERNEL32 = Kernel32.INSTANCE;
     private static final Psapi PSAPI = Psapi.INSTANCE;
-    private final ProcessInfo processInfo;
+    private final long pid;
 
     /**
      * Создание ридера для взаимодействия с процессом
      *
-     * @param processInfo - информация о текущем процессе
+     * @param pid - процесса
      */
-    public ProcessMemoryReader(ProcessInfo processInfo) {
-        this.processInfo = processInfo;
+    public ProcessMemoryReader(long pid) {
+        this.pid = pid;
     }
 
     /**
@@ -32,7 +32,7 @@ public class ProcessMemoryReader {
      * @return данные хранящиеся по указанному адресу
      */
     public byte readMemory(int offset) {
-        WinNT.HANDLE process = KERNEL32.OpenProcess(Kernel32.PROCESS_QUERY_INFORMATION | Kernel32.PROCESS_VM_READ, false, (int) processInfo.getPid());
+        WinNT.HANDLE process = KERNEL32.OpenProcess(Kernel32.PROCESS_QUERY_INFORMATION | Kernel32.PROCESS_VM_READ, false, (int) pid);
 
         Memory memory = new Memory(1024);
         IntByReference bytesReceived = new IntByReference();
@@ -72,6 +72,7 @@ public class ProcessMemoryReader {
             Module module = new Module(process, hmodule);
 
             String fileName = module.getAbsoluteImagePath();
+
 
             if (fileName.compareToIgnoreCase(processImageFileName) == 0) {
 
