@@ -6,9 +6,9 @@ import com.sun.jna.platform.win32.*;
 import java.util.*;
 
 public final class CoreProcessManager {
-	public CoreProcessManager() {
-	}
-
+	/**
+	 * Получение списка всех запущенных процессов.
+	 */
 	public List<ProcessInfo> findProcesses() {
 		List<ProcessInfo> processes = new ArrayList<>();
 
@@ -28,6 +28,10 @@ public final class CoreProcessManager {
 		return processes;
 	}
 
+	/**
+	 * Поиск списка всех запущенных процессов по имени.
+	 * @param processName имя процесса, который нужно искать
+	 */
 	public List<ProcessInfo> findProcesses(String processName) {
 		List<ProcessInfo> processes = new ArrayList<>();
 
@@ -49,7 +53,10 @@ public final class CoreProcessManager {
 		processes.sort(Comparator.comparingLong(ProcessInfo::getPid));
 		return processes;
 	}
-
+	/**
+	 * Маппинг для класса ProcessInfo.
+	 * @param processEntry - из этого аргумента вытаскиваются нужные параметры и на основе этих параметров, создается объект ProcessInfo
+	 */
 	public ProcessInfo mapToProcessInfo(Tlhelp32.PROCESSENTRY32 processEntry) {
 		return new ProcessInfo(processEntry.th32ProcessID.longValue(), Native.toString(processEntry.szExeFile), "Unknown", "Unknown");
 	}
