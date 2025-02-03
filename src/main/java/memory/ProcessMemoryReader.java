@@ -18,8 +18,7 @@ public class ProcessMemoryReader {
 
     /**
      * Создание ридера для взаимодействия с процессом
-     *
-     * @param pid - процесса
+     * @param pid процесса
      */
     public ProcessMemoryReader(long pid) {
         this.pid = pid;
@@ -27,7 +26,6 @@ public class ProcessMemoryReader {
 
     /**
      * Чтение байта памяти по указанному отступу от начала памяти процесса
-     *
      * @param offset отступ от начала памяти процесса
      * @return данные хранящиеся по указанному адресу
      */
@@ -46,7 +44,6 @@ public class ProcessMemoryReader {
 
     /**
      * Получение адреса начала памяти процесса
-     *
      * @param process процесс, чей адрес начала памяти необходимо получить
      * @return указатель на начало памяти процесса
      */

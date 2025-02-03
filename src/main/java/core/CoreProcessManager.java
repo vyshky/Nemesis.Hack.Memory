@@ -55,7 +55,7 @@ public final class CoreProcessManager {
 	}
 	/**
 	 * Маппинг для класса ProcessInfo.
-	 * @param processEntry - из этого аргумента вытаскиваются нужные параметры и на основе этих параметров, создается объект ProcessInfo
+	 * @param processEntry из этого аргумента вытаскиваются нужные параметры и на основе этих параметров, создается объект ProcessInfo
 	 */
 	public ProcessInfo mapToProcessInfo(Tlhelp32.PROCESSENTRY32 processEntry) {
 		return new ProcessInfo(processEntry.th32ProcessID.longValue(), Native.toString(processEntry.szExeFile), "Unknown", "Unknown");
